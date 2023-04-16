@@ -1,30 +1,71 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
-import Home from './components/Home';
-import Login from './components/Login';
-import Register from './components/Register';
+import Registration from './components/Registration';
 import Attendance from './components/Attendance';
+import * as faceapi from 'face-api.js';
+import { loadModels } from './faceRecognition';
+import { dataURLToBlob } from 'blob-util';
+
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [students, setStudents] = useState([]);
 
-  const onCapture = (imageSrc) => {
-    // Handle the captured image here
-    console.log('Image captured:', imageSrc);
+  const onRegister = async (student) => {
+    // Load face-api.js models
+    await loadModels();
+  
+    // Detect faces and compute face descriptors
+    const input = await faceapi.bufferToImage(dataURLToBlob(student.imageSrc));
+    const detection = await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor();
+  
+    if (detection) {
+      student.descriptor = detection.descriptor;
+      student.label = students.length.toString(); // Add this line to assign a label
+      setStudents([...students, student]);
+      console.log(students);
+    } else {
+      alert('No face detected. Please try again.');
+    }
   };
+  
+
+
+  const onMarkAttendance = async (imageSrc) => {
+    // Load face-api.js models
+    await loadModels();
+  
+    // Detect faces and compute face descriptors
+    const input = await faceapi.bufferToImage(dataURLToBlob(imageSrc));
+    const detections = await faceapi.detectAllFaces(input).withFaceLandmarks().withFaceDescriptors();
+  
+    // Create labeledFaceDescriptors from registered students
+    const labeledFaceDescriptors = students.map(
+      (s) => new faceapi.LabeledFaceDescriptors(s.label, [s.descriptor])
+    );
+    
+    // Compare face descriptors with registered students
+    const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
+  
+    for (const detection of detections) {
+      const match = faceMatcher.findBestMatch(detection.descriptor);
+      if (match.distance < 0.6) { // You can adjust the threshold
+        const studentIndex = parseInt(match.label, 10);
+        const student = students[studentIndex];
+        student.present = true;
+        console.log(student);
+      }
+    }
+  };
+  
+  
+
 
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route exact path="/" element={<Home />} />
-          <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/attendance" element={<Attendance onCapture={onCapture} />} />
-        </Routes>
-      </div>
-    </Router>
+    <div className="App">
+      <h1>Facial Recognition Attendance System</h1>
+      <Registration onRegister={onRegister} />
+      <Attendance students={students} onMarkAttendance={onMarkAttendance} />
+    </div>
   );
 }
 

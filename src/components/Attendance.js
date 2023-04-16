@@ -1,10 +1,14 @@
 import React from 'react';
 import Camera from './Camera';
 
-const Attendance = ({ onCapture }) => {
+const Attendance = ({ students, onMarkAttendance }) => {
+  const onCapture = (imageSrc) => {
+    onMarkAttendance(imageSrc);
+  };
+
   return (
-    <div className="container mx-auto mt-8">
-      <h1 className="text-2xl font-bold mb-4">Mark Attendance</h1>
+    <div>
+      <h2>Mark Attendance</h2>
       <Camera onCapture={onCapture} />
     </div>
   );
