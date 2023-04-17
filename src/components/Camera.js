@@ -12,7 +12,7 @@ const Camera = ({ onCapture }) => {
   return (
     <>
       <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" />
-      <button onClick={capture}>Capture</button>
+      <button onClick={capture} className='p-4 bg-green-500 text-white rounded my-4 mx-auto'>Capture</button>
     </>
   );
 };
