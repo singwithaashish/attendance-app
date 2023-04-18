@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Camera from './Camera';
 
-const Registration = ({ onRegister }) => {
+const Registration = ({ onRegister, loading }) => {
   const [name, setName] = useState('');
   const [usn, setUsn] = useState('');
   const classnames = {
@@ -9,12 +9,17 @@ const Registration = ({ onRegister }) => {
   }
 
   const onCapture = (imageSrc) => {
+    if(name.length <1 || usn.length < 1)
+    {
+      alert("please fill name and usn field")
+      return
+    }
     onRegister({ name, usn, imageSrc });
   };
 
   return (
     <div>
-      <h2 className='font-thin text-red-600'>Student Registration</h2>
+      <h2 className='font-bold text-green-600'>Student Registration</h2>
       <div className="flex flex-col">
 
       <input
@@ -27,13 +32,13 @@ const Registration = ({ onRegister }) => {
       <input
         type="text"
         placeholder="USN"
-        className={classnames.input}
+        className={classnames.input + " uppercase"}
         value={usn}
         onChange={(e) => setUsn(e.target.value)}
       />
       
         </div>
-      <Camera onCapture={onCapture} />
+      <Camera onCapture={onCapture} loading={loading}/>
     </div>
   );
 };
