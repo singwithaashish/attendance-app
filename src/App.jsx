@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import Registration from "./components/Registration";
 import Attendance from "./components/Attendance";
@@ -7,11 +7,37 @@ import { loadModels } from "./faceRecognition";
 import { dataURLToBlob } from "blob-util";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "./firebasething";
+import { addStudent } from "./fireFunc";
 
 function App() {
+  // students are fetched in realtime from firebase
   const [students, setStudents] = useState([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
+
+
+  useEffect(() => {
+    const unsubscribeLibraries = onSnapshot(collection(db, "students"), (snapshot) => {
+      const allStudents = [];
+      snapshot.forEach((doc) => {
+        allStudents.push({ 
+          // ...doc.data(), label: doc.id 
+          name: doc.data().name,
+          usn: doc.data().usn,
+          imageSrc: doc.data().imageSrc,
+          label: doc.data().label,
+          descriptor: new Float32Array(doc.data().descriptor)
+        
+        });
+      });
+      console.log(allStudents);
+      setStudents(allStudents);
+    });
+  
+    return () => unsubscribeLibraries();
+  }, []);
   
 
   const onRegister = async (student) => {
@@ -33,45 +59,17 @@ function App() {
     ) {
       student.descriptor = detection.descriptor;
       student.label = students.length.toString(); // Add this line to assign a label
-      setStudents([...students, student]);
-      console.log(students);
+      // ! replace this with firebase
+      console.log(student);
+      // setStudents([...students, student]);
+      addStudent(student);
+      // console.log(students);
     } else {
       alert("No face detected OR face already registered. Please try again.");
     }
     setLoading(false);
   };
 
-  // const isFaceAlreadyRegistered = (newDescriptor, students) => {
-  //   const threshold = 0.9; // You can adjust the threshold value for similarity
-
-  //   return students.some((student) => {
-  //     const distance = faceapi.euclideanDistance(newDescriptor, student.descriptor);
-  //     return distance < threshold;
-  //   });
-  // };
-
-  // const onRegister = async (student) => {
-  //   // Load face-api.js models
-  //   await loadModels();
-
-  //   // Detect faces and compute face descriptors
-  //   const input = await faceapi.bufferToImage(dataURLToBlob(student.imageSrc));
-  //   const detection = await faceapi.detectSingleFace(input).withFaceLandmarks().withFaceDescriptor();
-
-  //   if (detection) {
-  //     if (isFaceAlreadyRegistered(detection.descriptor, students)) {
-  //       alert('The face is already registered. Please try a different face.');
-  //       console.log(students);
-  //     } else {
-  //       student.descriptor = detection.descriptor;
-  //       student.label = students.length.toString(); // Add this line to assign a label
-  //       setStudents([...students, student]);
-  //       console.log(students);
-  //     }
-  //   } else {
-  //     alert('No face detected. Please try again.');
-  //   }
-  // };
 
   const onMarkAttendance = async (imageSrc) => {
     setLoading(true)
@@ -93,11 +91,15 @@ function App() {
     // Compare face descriptors with registered students
     const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
 
+    console.log(detections, faceMatcher, labeledFaceDescriptors);
+
     for (const detection of detections) {
       const match = faceMatcher.findBestMatch(detection.descriptor);
+      console.log(match);
       if (match.distance < 0.6) {
         // You can adjust the threshold
         const studentIndex = parseInt(match.label, 10);
+        console.log(studentIndex);
         const student = students[studentIndex];
         student.present = true;
         // update the student in the students array
@@ -173,38 +175,6 @@ function App() {
   );
 }
 
-// const StudCard = ({ student }) => {
-//   return (
-//     <div className="flex rounded border-green-600 border p-4 shadow-lg mr-4">
-//       <div className="flex flex-col">
-//         <div className="flex">
-//           <h2 className="font-bold mr-2">Name: </h2>
-//           <p>{student.name}</p>
-//         </div>
-//         <div className="flex">
-//           <h2 className="font-bold mr-2">USN: </h2>
-//           <p className=" uppercase">{student.usn}</p>
-//         </div>
-//         {student.present ? (
-//           <div className="p-2 m-2 bg-green-500 opacity-80 rounded text-white">
-//             Present
-//           </div>
-//         ) : (
-//           <div className="p-2 m-2 bg-red-500 opacity-80 rounded text-white">
-//             Absent
-//           </div>
-//         )}
-//       </div>
-
-//       <img
-//         className="rounded object-cover max-w-full w-40 h-40 ml-4"
-//         src={student.imageSrc}
-//         alt=""
-//         srcset=""
-//       />
-//     </div>
-//   );
-// };
 
 const StudCardAgain = ({ student }) => {
   return (
