@@ -9,7 +9,17 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "./firebasething";
-import { addStudent } from "./fireFunc";
+import { addStudent, markattendance } from "./fireFunc";
+// import { Route, Router, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  Routes,
+  useLocation,
+} from "react-router-dom";
+import { Navbar } from "flowbite-react";
+import CustNavBar from "./components/CustNavBar";
 
 function App() {
   // students are fetched in realtime from firebase
@@ -28,8 +38,8 @@ function App() {
           usn: doc.data().usn,
           imageSrc: doc.data().imageSrc,
           label: doc.data().label,
-          descriptor: new Float32Array(doc.data().descriptor)
-        
+          descriptor: new Float32Array(doc.data().descriptor),
+          attendance: doc.data().attendance
         });
       });
       console.log(allStudents);
@@ -102,10 +112,11 @@ function App() {
         console.log(studentIndex);
         // const student = students[studentIndex];
         const student = students.find((s) => s.label === match.label);
-        student.present = true;
-        // update the student in the students array
-        students[studentIndex] = student;
-        setStudents([...students]);
+        // student.present = true;
+        // // update the student in the students array
+        // students[studentIndex] = student;
+        // setStudents([...students]);
+        await markattendance(match.label);
         setLoading(false)
         console.log(student);
       }
@@ -127,52 +138,66 @@ function App() {
     "Attendance Page"
   ]
 
+  
+
   return (
-    <div className="p-10 pt-0 flex flex-col items-center bg-gray-200">
-      <div className="w-screen py-5 mb-5 bg-gray-300 text-center font-bold uppercase rounded">Facial Recognition Attendance System
-      <h1 className="text-green-600 font-bold text-xl">
-        {pageName[page]}
-      </h1>
+    // <div className="p-10 pt-0 flex flex-col items-center bg-gray-200">
+    //   <div className="w-screen py-5 mb-5 bg-gray-300 text-center font-bold uppercase rounded">Facial Recognition Attendance System
+    //   <h1 className="text-green-600 font-bold text-xl">
+    //     {pageName[page]}
+    //   </h1>
 
-      {page > 1 && <button
-          onClick={() => {
-            setPage(1);
-          }}
-          className=" bg-green-600 text-white font-bold m-4 p-4 rounded"
-        >
-          GO TO Dashboard
-        </button>}
+    //   {page > 1 && <button
+    //       onClick={() => {
+    //         setPage(1);
+    //       }}
+    //       className=" bg-green-600 text-white font-bold m-4 p-4 rounded"
+    //     >
+    //       GO TO Dashboard
+    //     </button>}
       
-      </div>
+    //   </div>
       
 
-      {page!== 0 && <div className="flex overflow-scroll">
-        {students.map((student) => {
-          return <StudCardAgain student={student} />;
-        })}
-      </div>}
-      {allPages[page]}
+    //   {page!== 0 && <div className="flex overflow-scroll">
+    //     {students.map((student) => {
+    //       return <StudCardAgain student={student} />;
+    //     })}
+    //   </div>}
+    //   {allPages[page]}
 
-      {page > 1 && (page == 2 ? (
-        <button
-          onClick={() => {
-            setPage(3);
-          }}
-          className=" bg-red-600 text-white font-bold m-4 p-4 rounded"
-        >
-          GO TO ATTENDANCE
-        </button>
-      ) : (
-        <button
-          onClick={() => {
-            setPage(2);
-          }}
-          className=" bg-red-600 text-white font-bold m-4 p-4 rounded"
-        >
-          GO TO REGISTRATION
-        </button>
-      ))}
-    </div>
+    //   {page > 1 && (page == 2 ? (
+    //     <button
+    //       onClick={() => {
+    //         setPage(3);
+    //       }}
+    //       className=" bg-red-600 text-white font-bold m-4 p-4 rounded"
+    //     >
+    //       GO TO ATTENDANCE
+    //     </button>
+    //   ) : (
+    //     <button
+    //       onClick={() => {
+    //         setPage(2);
+    //       }}
+    //       className=" bg-red-600 text-white font-bold m-4 p-4 rounded"
+    //     >
+    //       GO TO REGISTRATION
+    //     </button>
+    //   ))}
+
+    // </div>
+      <Router>
+        <CustNavBar/>
+        <Routes>
+          <Route path="/" element={<Login/>}/>
+          <Route path="/register" element={<Registration onRegister={onRegister} loading={loading}/>}/>
+          <Route path="/attendance" element={<Attendance onMarkAttendance={onMarkAttendance} loading={loading}/>}/>
+          <Route path="/dashboard" element={<Dashboard studentList={students} setPage={setPage}/>} />
+          <Route path="/login" element={<Login setPage={setPage}/>}/>
+
+        </Routes>
+      </Router>
   );
 }
 

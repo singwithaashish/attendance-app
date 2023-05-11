@@ -63,10 +63,10 @@ const Dashboard = ({studentList, setPage}) => {
               <td className="py-4 px-6">
                 <span
                   className={`inline-block py-1 px-3 text-white font-semibold ${
-                    row.present ? 'bg-green-500' : 'bg-red-500'
+                    isStudentPresnetToday(row) ? 'bg-green-500' : 'bg-red-500'
                   }`}
                 >
-                  {row.present ? 'Present' : 'Absent'}
+                  {isStudentPresnetToday(row) ? 'Present' : 'Absent'}
                 </span>
               </td>
             </tr>
@@ -76,5 +76,21 @@ const Dashboard = ({studentList, setPage}) => {
     </div>
   );
 };
+
+// sample student.attendance = ['16-09-2021', '17-09-2021']
+
+function isStudentPresnetToday(student) {
+console.log(student);
+  const today = new Date();
+  const date = today.getDate();
+    const month = today.getMonth();
+    const year = today.getFullYear();
+    const dateStr = date + "-" + month + "-" + year;
+  if(student.attendance.includes(dateStr)) {
+    return true;
+  }else {
+    return false;
+  }
+}
 
 export default Dashboard;
