@@ -91,7 +91,7 @@ function App() {
     // Compare face descriptors with registered students
     const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
 
-    console.log(detections, faceMatcher, labeledFaceDescriptors);
+    // console.log(detections, faceMatcher, labeledFaceDescriptors);
 
     for (const detection of detections) {
       const match = faceMatcher.findBestMatch(detection.descriptor);
@@ -100,7 +100,8 @@ function App() {
         // You can adjust the threshold
         const studentIndex = parseInt(match.label, 10);
         console.log(studentIndex);
-        const student = students[studentIndex];
+        // const student = students[studentIndex];
+        const student = students.find((s) => s.label === match.label);
         student.present = true;
         // update the student in the students array
         students[studentIndex] = student;
