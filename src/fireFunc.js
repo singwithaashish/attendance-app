@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "./firebasething";
 
 async function addStudent(student) {
@@ -26,6 +26,21 @@ async function getStudents() {
     (doc) => ({ ...doc.data(), id: doc.id })
   );
   return studentList;
+}
+
+async function getStudentById(id) {
+  const studentRef = doc(db, "students", id);
+  const studentSnapshot = await getDoc(studentRef);
+  const student = { 
+    name: studentSnapshot.data().name,
+    usn: studentSnapshot.data().usn,
+    imageSrc: studentSnapshot.data().imageSrc,
+    label: studentSnapshot.data().label,
+    attendance: studentSnapshot.data().attendance,
+    descriptor: new Float32Array(studentSnapshot.data().descriptor),
+    id: studentSnapshot.id
+   };
+  return student;
 }
 
 async function markattendance(studentLabel){
@@ -77,4 +92,4 @@ async function markattendance(studentLabel){
 }
 }
 
-export { addStudent, getStudents, markattendance };
+export { addStudent, getStudents, markattendance, getStudentById };

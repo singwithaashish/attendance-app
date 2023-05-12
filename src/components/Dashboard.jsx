@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const data = [
   {
@@ -53,10 +54,12 @@ const Dashboard = ({studentList, setPage}) => {
         </thead>
         <tbody>
           {studentList.map((row, index) => (
-            <tr key={index} className="border-b hover:bg-gray-100">
+            <tr key={index} className="border-b hover:bg-gray-100" >
               <td className="py-4 px-6">{index+1}</td>
               <td className="py-4 px-6">{row.usn}</td>
+              <Link to={`/details/${row.id}`}>
               <td className="py-4 px-6">{row.name}</td>
+                </Link>
               <td className="py-4 px-6">
                 <img src={row.imageSrc} alt={row.name} className="w-10 h-10 rounded-full" />
               </td>

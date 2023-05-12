@@ -20,6 +20,7 @@ import {
 } from "react-router-dom";
 import { Navbar } from "flowbite-react";
 import CustNavBar from "./components/CustNavBar";
+import Statistics from "./components/Statistics";
 
 function App() {
   // students are fetched in realtime from firebase
@@ -39,7 +40,8 @@ function App() {
           imageSrc: doc.data().imageSrc,
           label: doc.data().label,
           descriptor: new Float32Array(doc.data().descriptor),
-          attendance: doc.data().attendance
+          attendance: doc.data().attendance,
+          id: doc.id
         });
       });
       console.log(allStudents);
@@ -195,6 +197,7 @@ function App() {
           <Route path="/attendance" element={<Attendance onMarkAttendance={onMarkAttendance} loading={loading}/>}/>
           <Route path="/dashboard" element={<Dashboard studentList={students} setPage={setPage}/>} />
           <Route path="/login" element={<Login setPage={setPage}/>}/>
+          <Route path="/details/:id" element={<Statistics/>}/>
 
         </Routes>
       </Router>
