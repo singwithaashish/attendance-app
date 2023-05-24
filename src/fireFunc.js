@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "./firebasething";
 
 async function addStudent(student) {
@@ -27,6 +27,17 @@ async function getStudents() {
   );
   return studentList;
 }
+
+async function deleteStudent(id) {
+  try {
+    const studentRef = doc(db, 'students', id);
+    await deleteDoc(studentRef);
+    console.log('Student deleted successfully');
+  } catch(e) {
+    console.error('Error deleting student: ', e);
+  }
+}
+ 
 
 async function getStudentById(id) {
   const studentRef = doc(db, "students", id);
@@ -92,4 +103,4 @@ async function markattendance(studentLabel){
 }
 }
 
-export { addStudent, getStudents, markattendance, getStudentById };
+export { addStudent, getStudents, markattendance, getStudentById, deleteStudent };

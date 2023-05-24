@@ -1,5 +1,7 @@
+import { Button } from 'flowbite-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { deleteStudent } from '../fireFunc';
 
 const data = [
   {
@@ -22,7 +24,7 @@ const data = [
 const Dashboard = ({studentList, setPage}) => {
   return (
     <div className="container mx-auto px-4">
-        <div className="flex">
+        {/* <div className="flex">
 
          <button
           onClick={() => {
@@ -41,7 +43,7 @@ const Dashboard = ({studentList, setPage}) => {
         >
           GO TO REGISTRATION
         </button>
-            </div>
+            </div> */}
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-300 text-gray-800">
@@ -50,6 +52,7 @@ const Dashboard = ({studentList, setPage}) => {
             <th className="py-4 px-6">Name</th>
             <th className="py-4 px-6">Image</th>
             <th className="py-4 px-6">Status</th>
+            <th className='py-4 px-6'>Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -71,6 +74,9 @@ const Dashboard = ({studentList, setPage}) => {
                 >
                   {isStudentPresnetToday(row) ? 'Present' : 'Absent'}
                 </span>
+              </td>
+              <td>
+                <Button onClick={async () => await deleteStudent(row.id)}>Delete</Button>
               </td>
             </tr>
           ))}

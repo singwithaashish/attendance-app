@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-function Login({setPage}) {
+function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -11,7 +11,7 @@ function Login({setPage}) {
         // console.log(un + " --------- " + pw)
         if(un === "admin" && pw === "thispw"){
 
-            setPage(1);
+            window.location.href = "/dashboard"
         }else{
             alert("The username or password is incorrect")
         }
